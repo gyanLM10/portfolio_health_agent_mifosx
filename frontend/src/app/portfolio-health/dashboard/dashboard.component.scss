@@ -1,0 +1,211 @@
+.container {
+  padding: 24px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: #999;
+  margin: 4px 0 0 0;
+}
+
+// Status chip
+.status-chip {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+
+  &.online {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.offline {
+    background: #ffebee;
+    color: #c62828;
+  }
+}
+
+// Scan status card
+.scan-status-card {
+  background: #e8eaf6;
+  border-left: 4px solid #3f51b5;
+
+  mat-card-content {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #283593;
+  }
+}
+
+// Stat cards
+.stat-card {
+  text-align: center;
+
+  .stat-label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+
+    &.risk-high {
+      color: #e65100;
+    }
+  }
+}
+
+// Empty state
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #c8e6c9;
+    margin-bottom: 12px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+// Escalation cards
+.escalation-card {
+  padding: 20px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #bdbdbd;
+  background: #fafafa;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  &.risk-critical {
+    border-left-color: #d32f2f;
+    background: #fff5f5;
+  }
+
+  &.risk-high {
+    border-left-color: #e65100;
+    background: #fff8f0;
+  }
+
+  &.risk-medium {
+    border-left-color: #f9a825;
+    background: #fffdf0;
+  }
+
+  &.risk-low {
+    border-left-color: #2e7d32;
+    background: #f0faf0;
+  }
+}
+
+.loan-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.client-name {
+  font-size: 13px;
+  color: #757575;
+}
+
+// Risk badges
+.risk-badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &.small {
+    padding: 2px 8px;
+    font-size: 11px;
+  }
+
+  &.badge-critical {
+    background: #ffebee;
+    color: #d32f2f;
+  }
+
+  &.badge-high {
+    background: #fff3e0;
+    color: #e65100;
+  }
+
+  &.badge-medium {
+    background: #fffde7;
+    color: #f57f17;
+  }
+
+  &.badge-low {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+}
+
+// Explanation box
+.explanation-box {
+  background: #f5f5f5;
+  border-left: 3px solid #7c4dff;
+  padding: 12px 16px;
+  margin: 16px 0;
+  border-radius: 0 8px 8px 0;
+
+  .explanation-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    color: #5c6bc0;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  p {
+    margin: 0;
+    color: #555;
+    line-height: 1.6;
+    font-size: 13px;
+  }
+}
+
+// Audit trail table
+.full-width-table {
+  width: 100%;
+}

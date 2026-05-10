@@ -1,0 +1,162 @@
+<div class="container" fxLayout="column" fxLayoutGap="24px">
+
+  <!-- Header -->
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <div>
+      <h2 class="page-title">Portfolio Health Agent</h2>
+      <p class="page-subtitle">Powered by Rust MCP Server &bull; LangChain ReAct Agent</p>
+    </div>
+    <div fxLayout="row" fxLayoutGap="12px" fxLayoutAlign="end center">
+      <span class="status-chip" [ngClass]="backendOnline ? 'online' : 'offline'">
+        {{ backendOnline ? 'Backend Online' : 'Backend Offline' }}
+      </span>
+      <button mat-raised-button color="primary"
+              (click)="runScan()"
+              [disabled]="scanStatus?.status === 'RUNNING'">
+        <mat-icon>radar</mat-icon>
+        <span *ngIf="scanStatus?.status !== 'RUNNING'">Run Portfolio Scan</span>
+        <span *ngIf="scanStatus?.status === 'RUNNING'">Scanning...</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Scan Status Banner -->
+  <mat-card *ngIf="scanMessage" class="scan-status-card">
+    <mat-card-content fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+      <mat-spinner diameter="20"></mat-spinner>
+      <span>{{ scanMessage }}</span>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Stats Row -->
+  <div fxLayout="row wrap" fxLayoutGap="16px" *ngIf="stats">
+    <mat-card class="stat-card" fxFlex="calc(25% - 16px)" fxFlex.lt-md="calc(50% - 16px)">
+      <mat-card-content>
+        <div class="stat-label">Total Decisions</div>
+        <div class="stat-value">{{ stats.total_decisions }}</div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="stat-card" fxFlex="calc(25% - 16px)" fxFlex.lt-md="calc(50% - 16px)">
+      <mat-card-content>
+        <div class="stat-label">Avg Risk Score</div>
+        <div class="stat-value">{{ stats.average_risk_score }}/100</div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="stat-card" fxFlex="calc(25% - 16px)" fxFlex.lt-md="calc(50% - 16px)">
+      <mat-card-content>
+        <div class="stat-label">High Risk</div>
+        <div class="stat-value risk-high">{{ stats.by_risk_level['HIGH'] || 0 }}</div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="stat-card" fxFlex="calc(25% - 16px)" fxFlex.lt-md="calc(50% - 16px)">
+      <mat-card-content>
+        <div class="stat-label">Approval Rate</div>
+        <div class="stat-value">{{ stats.escalation_approval_rate }}</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Pending Escalations -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Pending Escalations</mat-card-title>
+      <mat-card-subtitle>Cases requiring loan officer review</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+
+      <div *ngIf="loading" fxLayout="row" fxLayoutAlign="center center" style="padding: 32px;">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+
+      <div *ngIf="!loading && escalations.length === 0" class="empty-state">
+        <mat-icon>check_circle</mat-icon>
+        <p>No pending escalations. Portfolio is healthy.</p>
+      </div>
+
+      <div *ngFor="let item of escalations" class="escalation-card" [ngClass]="'risk-' + getRiskClass(item.risk_score)">
+        <div fxLayout="row" fxLayoutAlign="space-between start">
+          <div>
+            <h3 class="loan-title">Loan #{{ item.account_id }}</h3>
+            <span class="client-name">{{ item.client_name }}</span>
+          </div>
+          <span class="risk-badge" [ngClass]="'badge-' + getRiskClass(item.risk_score)">
+            {{ getRiskLabel(item.risk_score) }} &mdash; {{ item.risk_score }}/100
+          </span>
+        </div>
+
+        <div class="explanation-box">
+          <div class="explanation-label">
+            <mat-icon>psychology</mat-icon>
+            <span>AI Reasoning</span>
+          </div>
+          <p>{{ item.explanation }}</p>
+        </div>
+
+        <div fxLayout="row" fxLayoutGap="8px">
+          <button mat-raised-button color="primary" (click)="approveEscalation(item.id)">
+            <mat-icon>check</mat-icon> Approve Action
+          </button>
+          <button mat-stroked-button (click)="dismissEscalation(item.id)">
+            <mat-icon>close</mat-icon> Dismiss
+          </button>
+        </div>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Decision Audit Trail -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Decision Audit Trail</mat-card-title>
+      <mat-card-subtitle>Recent agent decisions with risk assessments</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="decisions" class="full-width-table" *ngIf="decisions.length > 0">
+
+        <ng-container matColumnDef="timestamp">
+          <th mat-header-cell *matHeaderCellDef>Timestamp</th>
+          <td mat-cell *matCellDef="let row">{{ row.timestamp | date:'short' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="loan_id">
+          <th mat-header-cell *matHeaderCellDef>Loan ID</th>
+          <td mat-cell *matCellDef="let row">#{{ row.loan_id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="client_name">
+          <th mat-header-cell *matHeaderCellDef>Client</th>
+          <td mat-cell *matCellDef="let row">{{ row.client_name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="risk_level">
+          <th mat-header-cell *matHeaderCellDef>Risk Level</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="risk-badge small" [ngClass]="'badge-' + getRiskClass(row.risk_score)">
+              {{ row.risk_level }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="risk_score">
+          <th mat-header-cell *matHeaderCellDef>Score</th>
+          <td mat-cell *matCellDef="let row">{{ row.risk_score }}/100</td>
+        </ng-container>
+
+        <ng-container matColumnDef="action_taken">
+          <th mat-header-cell *matHeaderCellDef>Action</th>
+          <td mat-cell *matCellDef="let row">{{ row.action_taken }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <div *ngIf="decisions.length === 0" class="empty-state">
+        <mat-icon>history</mat-icon>
+        <p>No decisions recorded yet. Run a scan to begin.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</div>
