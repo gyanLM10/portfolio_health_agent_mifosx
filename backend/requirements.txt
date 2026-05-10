@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+langchain
+langchain-openai
+langgraph
+langgraph-checkpoint-sqlite
+langchain-community
+langchain-mcp-adapters
+mcp
+pydantic
+python-dotenv

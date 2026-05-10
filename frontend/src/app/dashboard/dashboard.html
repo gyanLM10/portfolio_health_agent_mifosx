@@ -1,0 +1,47 @@
+<div class="dashboard-container">
+  <header>
+    <div class="header-left">
+      <h1>🏥 Portfolio Health Agent</h1>
+      <span class="subtitle">Powered by Rust MCP Server &bull; LangChain ReAct Agent</span>
+    </div>
+    <button (click)="runScan()" [disabled]="scanStatus?.status === 'RUNNING'">
+      <span *ngIf="scanStatus?.status !== 'RUNNING'">Run Portfolio Scan</span>
+      <span *ngIf="scanStatus?.status === 'RUNNING'">⏳ Scanning...</span>
+    </button>
+  </header>
+
+  <div class="status-bar" *ngIf="scanMessage">
+    <div class="pulse-dot"></div>
+    <span>{{ scanMessage }}</span>
+  </div>
+
+  <div class="escalations-section">
+    <h2>Pending Escalations</h2>
+    <p class="empty-state" *ngIf="!loading && escalations.length === 0">
+      ✅ No pending escalations. Portfolio is healthy.
+    </p>
+    <p *ngIf="loading" class="loading-text">Loading escalations...</p>
+
+    <div class="card" *ngFor="let item of escalations" [ngClass]="getRiskClass(item.risk_score)">
+      <div class="card-header">
+        <div>
+          <h3>Loan #{{ item.account_id }}</h3>
+          <span class="client-name">{{ item.client_name }}</span>
+        </div>
+        <div class="badge" [ngClass]="getRiskClass(item.risk_score)">
+          {{ getRiskLabel(item.risk_score) }} &mdash; {{ item.risk_score }}/100
+        </div>
+      </div>
+
+      <div class="explanation-box">
+        <h4>🤖 AI Reasoning</h4>
+        <p>{{ item.explanation }}</p>
+      </div>
+
+      <div class="actions">
+        <button class="btn-approve" (click)="approveEscalation(item.id)">✅ Approve Action</button>
+        <button class="btn-reject" (click)="dismissEscalation(item.id)">❌ Dismiss</button>
+      </div>
+    </div>
+  </div>
+</div>
